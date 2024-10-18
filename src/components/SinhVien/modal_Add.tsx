@@ -1,11 +1,12 @@
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
-import { Bounce, toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 
 interface IProps {
     isActive: boolean,
@@ -18,22 +19,20 @@ function Content(props: IProps) {
     const orientRef = useRef<any>();
     const bdateRef = useRef<any>();
 
-    const submitData = async () => {
-        let response = await fetch('http://localhost:5000/user/create', {
+
+    const submitData = () => {
+        var id = idRef.current.value;
+        var fname = fnameRef.current.value;
+        var orient = orientRef.current.value;
+        var bdate = bdateRef.current.value;
+        var poststr = JSON.stringify({ id, fname, orient, bdate });
+        fetch("http://localhost:5000/SinhVien/create", {
             method: "POST",
-            body: JSON.stringify({
-                id: idRef.current.value,
-                fname: fnameRef.current.value,
-                orient: orientRef.current.value,
-                bdate: bdateRef.current.value
-            }),
-            headers: {
-                'Content-type': 'application/json'
-            },
-            mode: 'no-cors'
+            headers: { 'Content-Type': 'application/json' },
+            body: poststr,
         })
-        response = await response
-        console.log(JSON.stringify(response))
+            .then((res) => res.json())
+            .then((json) => console.log(json));
     }
     const { isActive, setActive } = props;
     const handleClose = () => setActive(false);
