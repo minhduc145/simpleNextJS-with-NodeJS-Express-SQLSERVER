@@ -1,0 +1,12 @@
+{
+    "sinhvien": [
+        {
+            "id": "sv1",
+            "name": "Nguyen Van A"
+        },
+        {
+            "id": "sv2",
+            "name": "Le Thi B"
+        }
+    ]
+}
