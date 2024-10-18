@@ -1,14 +1,16 @@
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { mutate } from 'swr';
 
 
 interface IProps {
+    mutate: any,
     isActive: boolean,
     setActive: (value: boolean) => void
 }
@@ -20,28 +22,39 @@ function Content(props: IProps) {
     const bdateRef = useRef<any>();
 
 
-    const submitData = () => {
-        var id = idRef.current.value;
-        var fname = fnameRef.current.value;
-        var orient = orientRef.current.value;
-        var bdate = bdateRef.current.value;
+    async function submitData() {
+        var id = idRef.current.value.trim();
+        var fname = fnameRef.current.value.trim();
+        var orient = orientRef.current.value.trim();
+        var bdate = bdateRef.current.value.trim();
         var poststr = JSON.stringify({ id, fname, orient, bdate });
-        fetch("http://localhost:5000/SinhVien/create", {
+        let rt = null;
+        const fetcher = await fetch("http://localhost:5000/SinhVien/create", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: poststr,
-        })
-            .then((res) => res.json())
-            .then((json) => console.log(json));
+        });
+        const rs = fetcher.json()
+        return rs;
     }
+
+
     const { isActive, setActive } = props;
     const handleClose = () => setActive(false);
     const handleSave = () => {
-        submitData();
-        toast.success("Thành công!", {
-            position: "bottom-right",
+        submitData().then((token) => {
+            if (token['code'] == 1) {
+                toast.success("Thành công!", {
+                    position: "bottom-right",
+                });
+                setActive(false);
+                props.mutate(["http://localhost:5000/SinhVien/"]);
+            } else {
+                toast.error(token['message'], {
+                    position: "bottom-right",
+                });
+            }
         });
-        setActive(false);
     }
     return (
         <>
@@ -53,7 +66,7 @@ function Content(props: IProps) {
                     <Form>
                         <Form.Group className="mb-3" controlId="formMaSinhVien">
                             <Form.Label>Mã Sinh Viên</Form.Label>
-                            <Form.Control key='id' type="text" autoFocus ref={idRef} />
+                            <Form.Control key='id' type="text" autoFocus ref={idRef} required />
                         </Form.Group>
                         <Form.Group className="mb-3" controlId="exampleForm.ControlInput2">
                             <Form.Label>Họ Tên</Form.Label>
