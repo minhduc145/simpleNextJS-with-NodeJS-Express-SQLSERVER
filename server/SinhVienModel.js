@@ -7,9 +7,9 @@ class SinhVien {
   }
 }
 class ErrorDetail {
-  constructor(code, msg, anyRows) {
+  constructor(code, message, anyRows) {
     this.code = code;
-    this.msg = msg;
+    this.message = message;
     this.anyRows = anyRows;
   }
 }

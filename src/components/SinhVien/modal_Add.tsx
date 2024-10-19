@@ -6,10 +6,13 @@ import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { mutate } from 'swr';
+import Moment from 'moment';
+Moment.locale('en');
 
 
 interface IProps {
+    idIn: any,
+    isForModifying: boolean,
     mutate: any,
     isActive: boolean,
     setActive: (value: boolean) => void
@@ -17,38 +20,72 @@ interface IProps {
 
 function Content(props: IProps) {
     const idRef = useRef<any>();
-    const fnameRef = useRef<any>();
-    const orientRef = useRef<any>();
-    const bdateRef = useRef<any>();
 
+    const [idValue, setId] = useState<string>("");
+    const [fnameValue, setFname] = useState<string>("");
+    const [genderValue, setGender] = useState<string>("true");
+    const [bdateValue, setBdate] = useState<string>("");
+    const { isActive, setActive, mutate, isForModifying, idIn } = props;
+
+    async function getSV(id: any) {
+        const fetcher = await fetch("http://localhost:5000/SinhVien/" + id, {
+            method: "GET"
+        });
+        return (fetcher)
+    }
+
+    useEffect(() => {
+        if (isForModifying) {
+            if (idIn) {
+                idRef.current = idIn;
+                setId(idIn);
+                getSV(idIn).then(token => token.json()).then(res => {
+                    console.log(res[0])
+                    setFname(res[0].HoTen)
+                    setGender(res[0].GioiTinhNam.toString())
+                    setBdate(Moment(res[0].NgaySinh)?.format('yyyy-MM-DD'))
+                })
+
+            }
+        }
+    }, [idIn])
 
     async function submitData() {
-        var id = idRef.current.value.trim();
-        var fname = fnameRef.current.value.trim();
-        var orient = orientRef.current.value.trim();
-        var bdate = bdateRef.current.value.trim();
+        let url = "http://localhost:5000/SinhVien/create";
+        let method = "POST";
+        if (isForModifying) {
+            url = "http://localhost:5000/SinhVien/update/" + idIn;
+            method = "PATCH";
+        }
+        var id = idValue.trim();
+        var fname = fnameValue.trim();
+        var orient = genderValue;
+        var bdate = bdateValue.trim();
         var poststr = JSON.stringify({ id, fname, orient, bdate });
-        let rt = null;
-        const fetcher = await fetch("http://localhost:5000/SinhVien/create", {
-            method: "POST",
+        const fetcher = await fetch(url, {
+            method: method,
             headers: { 'Content-Type': 'application/json' },
             body: poststr,
         });
-        const rs = fetcher.json()
+        const rs = await fetcher.json()
         return rs;
     }
 
 
-    const { isActive, setActive } = props;
     const handleClose = () => setActive(false);
     const handleSave = () => {
         submitData().then((token) => {
+            console.log(token)
             if (token['code'] == 1) {
                 toast.success("Thành công!", {
                     position: "bottom-right",
                 });
+                setId("");
+                setFname("");
+                setGender("true");
+                setBdate("");
                 setActive(false);
-                props.mutate(["http://localhost:5000/SinhVien/"]);
+                mutate(["http://localhost:5000/SinhVien/"]);
             } else {
                 toast.error(token['message'], {
                     position: "bottom-right",
@@ -64,27 +101,30 @@ function Content(props: IProps) {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group className="mb-3" controlId="formMaSinhVien">
+
+                        <Form.Group className="mb-3" controlId="formMaSinhVien" hidden={isForModifying}>
                             <Form.Label>Mã Sinh Viên</Form.Label>
-                            <Form.Control key='id' type="text" autoFocus ref={idRef} required />
+                            <Form.Control key='id' type="text" autoFocus defaultValue={idValue} onChange={(e) => setId(e.currentTarget.value)} readOnly={isForModifying} required />
                         </Form.Group>
+
+
                         <Form.Group className="mb-3" controlId="exampleForm.ControlInput2">
                             <Form.Label>Họ Tên</Form.Label>
-                            <Form.Control key='fname' type="text" ref={fnameRef} />
+                            <Form.Control key='fname' type="text" value={fnameValue} onChange={(e) => setFname(e.currentTarget.value)} />
                         </Form.Group>
 
                         <Row className="mb-3">
                             <Form.Group as={Col} controlId="formGioiTinh">
                                 <Form.Label>Giới Tính</Form.Label>
-                                <Form.Select key='orient' ref={orientRef}>
-                                    <option value="1">Nam</option>
-                                    <option value="0">Nữ</option>
+                                <Form.Select key='orient' value={genderValue.toString()} onChange={(e) => setGender(e.target.value)}>
+                                    <option value="true">Nam</option>
+                                    <option value="false">Nữ</option>
                                 </Form.Select>
                             </Form.Group>
 
                             <Form.Group as={Col} controlId="formNgaySinh">
                                 <Form.Label>Ngày Sinh</Form.Label>
-                                <Form.Control key='bdate' type="date" ref={bdateRef} />
+                                <Form.Control key='bdate' type="date" value={bdateValue} onChange={(e) => setBdate(e.target.value)} />
                             </Form.Group>
 
                         </Row>

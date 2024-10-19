@@ -1,22 +1,10 @@
 const { SinhVien, ErrorDetail } = require("./SinhVienModel.js");
 const config = require("./dbConfig");
 var sql = require("mssql");
-var express = require("express");
-var app = express();
-const bodyParser = require("body-parser");
-app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: false }));
-const cors = require("cors");
-const corsOptions = {
-  origin: "*",
-  credentials: true, //access-control-allow-credentials:true
-  optionSuccessStatus: 200,
-};
-app.use(cors(corsOptions));
 
 class SinhVienDAO {
   constructor() {}
-  async GetSV() {
+  async GetAllSV() {
     try {
       var pool = await sql.connect(config);
       let sv = await pool.request().query("Select * from sinhvien");
@@ -25,12 +13,43 @@ class SinhVienDAO {
       return error;
     }
   }
-  async deleteAllSV() {
+  async GetSV(id) {
+    try {
+      var pool = await sql.connect(config);
+      let sv = await pool
+        .request()
+        .input("msv", id)
+        .query("Select * from sinhvien where MaSinhVien = @msv");
+      return sv.recordset;
+    } catch (error) {
+      return error;
+    }
+  }
+  async UpdateSV(id, SinhVien) {
+    try {
+      var pool = await sql.connect(config);
+      let sv = await pool
+        .request()
+        .input("msv", id)
+        .input("fname", SinhVien.name)
+        .input("gtn", SinhVien.gender)
+        .input("bd", SinhVien.bdate)
+        .query(
+          "update SinhVien set HoTen = @fname, GioiTinhNam = @gtn, NgaySinh = @bd where masinhvien = @msv"
+        );
+      return new ErrorDetail(1, sv.output, sv.rowsAffected);
+    } catch (error) {
+      return new ErrorDetail(0, error.message, 0);
+    }
+  }
+  async deleteAll() {
     try {
       var pool = await sql.connect(config);
       let sv = await pool.request().query("delete from sinhvien");
-      return sv.recordset;
-    } catch (error) {}
+      return sv.rowsAffected;
+    } catch (error) {
+      return error;
+    }
   }
   async deleteSV(id) {
     try {
@@ -47,7 +66,7 @@ class SinhVienDAO {
   async addSV(SinhVien) {
     try {
       if (!SinhVien.id) SinhVien.id = null;
-      if (!SinhVien.fname) SinhVien.fname = null;
+      if (!SinhVien.name) SinhVien.name = null;
       var pool = await sql.connect(config);
       let sv = await pool
         .request()

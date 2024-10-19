@@ -21,7 +21,7 @@ app.listen(port, function () {
 
 app.get("/SinhVien", function (req, res) {
   var rs = svdao
-    .GetSV()
+    .GetAllSV()
     .then((token) => {
       res.send(token);
     })
@@ -29,14 +29,40 @@ app.get("/SinhVien", function (req, res) {
       res.send(token);
     });
 });
-app.get("/SinhVien/deleteAll", function (req, res) {
+app.get("/SinhVien/:id", function (req, res) {
   var rs = svdao
-    .deleteAllSV()
+    .GetSV(req.params.id)
     .then((token) => {
       res.send(token);
     })
     .catch((err) => {
       res.send(token);
+    });
+});
+app.patch("/SinhVien/update/:id", function (req, res) {
+  const sv = new SinhVien(
+    req.params.id,
+    req.body.fname || null,
+    req.body.orient,
+    req.body.bdate
+  );
+  var rs = svdao
+    .UpdateSV(req.params.id, sv)
+    .then((token) => {
+      res.send(token);
+    })
+    .catch((err) => {
+      res.send(token);
+    });
+});
+app.delete("/SinhVien/deleteAll", function (req, res) {
+  var rs = svdao
+    .deleteAll()
+    .then((token) => {
+      res.send(token);
+    })
+    .catch((err) => {
+      res.send(err);
     });
 });
 app.delete("/SinhVien/delete/:id", function (req, res) {
@@ -59,10 +85,6 @@ app.post("/SinhVien/create", (req, res) => {
   );
 
   svdao.addSV(sv).then((rs) => {
-    res.json({
-      code: rs.code,
-      message: rs.msg,
-      rowsAffected: rs.anyRows,
-    });
+    res.send(rs);
   });
 });
