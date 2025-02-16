@@ -1,29 +1,18 @@
-"use client";
+'use client';
 
-import { Button } from "react-bootstrap";
-import MyTable from '../../components/SinhVien/table'
-import useSWR from "swr";
-import ModalAdd from "@/components/SinhVien/modal_Add";
-import { useState } from "react";
-import Loading from "../loading";
-import { toast } from "react-toastify";
-
-function SinhVien() {
-    const url = "http://localhost:5000/sinhvien";
-    async function deleteAll() {
-        await fetch("http://localhost:5000/SinhVien/deleteAll", {
-            method: "DELETE"
-        }).then(token => token.json()).then(res => {
-            console.log(res);
-            toast.info("Xóa xong: " + res + " dòng!");
-        });
-        mutate([url]);
-    }
-    const [show, setShow] = useState<boolean>(false);
+import Loading from '@/app/loading';
+import { useParams } from 'next/navigation';
+import { useEffect } from 'react';
+import useSWR from 'swr';
+function a() {
+    const id = useParams().userID;
+    const url = "http://localhost:5000/sinhvien/" + id;
     const fetcher = (url: string) => fetch(url).then((res) => res.json());
     const { data, error, isLoading, mutate } = useSWR(url, fetcher, { revalidateIfStale: false, revalidateOnFocus: false, revalidateOnReconnect: false, });
 
+    useEffect(() => {
 
+    })
 
     if (isLoading) {
         <Loading />
@@ -55,14 +44,9 @@ function SinhVien() {
     }
     else
         return (
-            <>
-                <Button className="m-2 -right-0" style={{ float: 'right' }} variant="secondary" onClick={() => deleteAll()}>Remove All</Button>
-                <Button className="m-2 -right-0" style={{ float: 'right' }} variant="success" onClick={() => setShow(true)}>Add new</Button>
-                <ModalAdd idIn={""} isForModifying={false} mutate={mutate} isActive={show} setActive={setShow} />
-                <MyTable mutate={mutate}
-                    sinhvien={data} />
-
-            </>
-        );
+            <p>
+                {JSON.stringify(data, null, 2)}
+            </p>
+        )
 }
-export default SinhVien;
+export default a;

@@ -4,7 +4,7 @@ import React, { Suspense, useEffect, useState, useTransition } from "react";
 import { Button, Form } from "react-bootstrap";
 import Loading from "./loading";
 
-const lstBtn = [{ id: 'sinhvien', title: 'Sinh Viên', url: "http://localhost:5000/SinhVien" },
+const lstBtn = [{ id: 'sinhvien', title: 'Sinh Viên', url: "http://localhost:5000/Sinhvien" },
 { id: 'products', title: 'Hàng hóa', url: "https://fakestoreapi.com/products" }]
 
 export default function Content() {

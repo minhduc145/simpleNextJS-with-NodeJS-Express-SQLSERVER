@@ -1,4 +1,4 @@
-import { Button, Table } from "react-bootstrap";
+import { Button, NavLink, Table } from "react-bootstrap";
 import ModalAdd from "@/components/SinhVien/modal_Add";
 import Moment from 'moment';
 import { toast } from "react-toastify";
@@ -46,7 +46,7 @@ export default function MyTable(props: IProps) {
                                 <td>{Moment(x.NgaySinh?.toString()).format('D/MM/yyyy')}</td>
 
                                 <td>
-                                    <Button variant="primary" className="mx-2">View</Button>
+                                    <Button href={"/SinhVien/" + x.MaSinhVien} variant="primary" className="mx-2">View</Button>
                                     <Button id={x.MaSinhVien} variant="warning" className="mx-2" onClick={(e) => handleOpen(e.currentTarget.id)}>Edit</Button>
                                     <Button variant="danger" className="mx-2" onClick={() => deleteSV(x.MaSinhVien)}>Remove</Button>
                                 </td>

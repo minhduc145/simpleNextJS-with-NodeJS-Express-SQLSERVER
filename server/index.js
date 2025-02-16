@@ -34,6 +34,7 @@ app.get("/SinhVien/:id", function (req, res) {
     .GetSV(req.params.id)
     .then((token) => {
       res.send(token);
+      console.log(token);
     })
     .catch((err) => {
       res.send(token);

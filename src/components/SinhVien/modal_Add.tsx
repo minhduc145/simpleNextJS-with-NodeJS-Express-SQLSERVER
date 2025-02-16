@@ -85,7 +85,7 @@ function Content(props: IProps) {
                 setGender("true");
                 setBdate("");
                 setActive(false);
-                mutate(["http://localhost:5000/SinhVien/"]);
+                mutate(["http://localhost:5000/Sinhvien"]);
             } else {
                 toast.error(token['message'], {
                     position: "bottom-right",
